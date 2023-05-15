@@ -1,0 +1,45 @@
+name: SSO Onboarding PR
+run-name: Provision SSO Client
+on: 
+  pull_request:
+    types: 
+      - closed
+    paths:
+      - 'environments/**'
+env:
+  KEYCLOAK_STAGING_USERNAME: ${{ secrets['KEYCLOAK_STAGING_USERNAME'] }}
+  KEYCLOAK_STAGING_PASSWORD: ${{ secrets['KEYCLOAK_STAGING_PASSWORD'] }}
+  KEYCLOAK_STAGING_URL: ${{ vars.KEYCLOAK_STAGING_URL }}
+  KEYCLOAK_PRODUCTION_USERNAME: ${{ secrets['KEYCLOAK_PRODUCTION_USERNAME'] }}
+  KEYCLOAK_PRODUCTION_PASSWORD: ${{ secrets['KEYCLOAK_PRODUCTION_PASSWORD'] }}
+  KEYCLOAK_PRODUCTION_URL: ${{ vars.KEYCLOAK_PRODUCTION_URL }}
+  BACKEND_STAGING_ACCESS_KEY: ${{ secrets['BACKEND_STAGING_ACCESS_KEY'] }}
+  BACKEND_STAGING_SECRET_KEY: ${{ secrets['BACKEND_STAGING_SECRET_KEY'] }}
+  BACKEND_PRODUCTION_ACCESS_KEY: ${{ secrets['BACKEND_PRODUCTION_ACCESS_KEY'] }}
+  BACKEND_PRODUCTION_SECRET_KEY: ${{ secrets['BACKEND_PRODUCTION_SECRET_KEY'] }}
+defaults:
+  run:
+    working-directory: .
+jobs:
+  run-terraform:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Retrieve Deployment Environment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./src/terraform/get_pr_environment.js');
+            script({github, context});
+
+      - name: Apply Terraform Plan
+        run: |
+          ./src/terraform/generate_clients.sh apply

@@ -1,0 +1,126 @@
+name: SSO Onboarding Request
+description: Issue a request to be onboarded to SSO
+title: "[SSO Onboarding Request]: "
+labels: ["user-request", "sso"]
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this request!
+
+  - type: dropdown
+    id: environment
+    validations:
+      required: true
+    attributes:
+      label: Environment
+      description: Environment to register your client in (Staging / Production).
+      options:
+        - Staging
+        - Production
+
+  - type: input
+    id: client_application_name
+    validations:
+      required: true
+    attributes:
+      label: Application Name
+      description: Name of the application being onboarded to SSO
+
+  - type: input
+    id: client_application_id
+    validations:
+      required: true
+    attributes:
+      label: Application ID
+      description: |
+        ID to be used within the Identity Provider for your application. Note this value must be unique within 
+        the provider and may only contain alpha-numeric characters.
+
+  - type: textarea
+    id: client_application_description
+    attributes:
+      label: Application Description
+      description: Description of the application, displays within the Keycloak Admin UI
+
+  - type: dropdown
+    id: client_type
+    validations:
+      required: true
+    attributes:
+      label: SSO Integration Type
+      description: How do you plan to integrate with SSO?
+      options:
+        - OIDC
+        - SAML
+
+  - type: dropdown
+    id: required_claims
+    attributes:
+      label: Required Claims
+      description: "Please check the required claims your application will need to operate:"
+      multiple: true
+      options:
+        - Name
+        - Email Address
+        - Profile Picture
+        - None / Not Applicable
+
+  - type: input
+    id: root_url
+    attributes:
+      label: Root URL
+      value: http://localhost:3000
+      description: Root URL of your application, used for SSO redirects to Keycloak. Appended onto relative URLs.
+
+  - type: input
+    id: home_url
+    attributes:
+      label: Home URL
+      value: http://localhost:3000
+      description: Default URL to use when the auth server needs to redirect or link back to the client.
+
+  - type: textarea
+    id: valid_redirect_uris
+    attributes:
+      label: Valid Redirect URIs
+      value: http://localhost:3000/*
+      description: |
+        Valid URI pattern a browser can redirect to after a successful login. Simple wildcards are 
+        allowed such as 'http://example.com/*'. Relative path can be specified too such as /my/relative/path/*. 
+        Relative paths are relative to the client root URL, or if none is specified the auth server root URL 
+        is used. For SAML, you must set valid URI patterns if you are relying on the consumer service URL 
+        embedded with the login request.
+
+  - type: textarea
+    id: valid_post_logout_redirect_uris
+    attributes:
+      label: Valid Post-Logout Redirect URIs
+      value: +
+      description: |
+        Valid URI pattern a browser can redirect to after a successful logout. A value of '+' 
+        will use the list of valid redirect uris. Simple wildcards are allowed such as 'http://example.com/*'. 
+        Relative path can be specified too such as /my/relative/path/*. Relative paths are relative to the client root URL, 
+        or if none is specified the auth server root URL is used. For SAML, you must set valid URI patterns if you are 
+        relying on the consumer service URL embedded with the login request.
+
+  - type: textarea
+    id: web_origins
+    attributes:
+      label: Web Origins
+      value: http://localhost:3000
+      description: |
+        Allowed CORS origins. To permit all origins of Valid Redirect URIs, add '+'. This does not include 
+        the '*' wildcard though. To permit all origins, explicitly add '*'.
+
+  - type: input
+    id: admin_url
+    attributes:
+      label: Admin URL
+      value: http://localhost:3000
+      description: |
+        URL to the admin interface of the client. Set this if the client supports the adapter REST API. 
+        This REST API allows the auth server to push revocation policies and other administrative tasks. 
+        Usually this is set to the base URL of the client.
